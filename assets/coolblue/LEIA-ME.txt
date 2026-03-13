@@ -1,0 +1,25 @@
+Pacote Cool Blue - Cursores para Windows
+========================================
+
+Incluído no projeto Pedido Certo 2.0 como referência visual (tema "Cool Blue" no app).
+
+Autor: Daniel W. (dwanvig@gmail.com)
+Fonte: http://www.rw-designer.com/cursor-set/coolblue
+Licença: Creative Commons - Attribution
+
+Para usar os cursores no Windows:
+1. Abra Configurações > Acessibilidade > Cursores e indicadores (ou Pesquisar "cursores").
+2. Ou: Painel de Controle > Mouse > Ponteiros.
+3. Em "Esquema", use "Procurar" e selecione o arquivo coolblue.crs desta pasta,
+   ou altere cada cursor manualmente (Normal Select.cur, Help Select.cur, etc.).
+
+Arquivos:
+- coolblue.crs = esquema de cursores
+- Normal Select.cur, Help Select.cur, Working.cur = cursores
+- gam307.ani = cursor animado (incluído no sistema)
+- readme.txt = informações originais do autor
+
+Usar gam307.ani no Windows:
+- Configurações > Acessibilidade > Cursores e indicadores (ou Painel de Controle > Mouse > Ponteiros).
+- Em "Personalizar", escolha um tipo (ex.: "Em espera" ou "Normal") e clique em Procurar.
+- Selecione gam307.ani nesta pasta e confirme.

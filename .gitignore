@@ -1,0 +1,43 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+**/doc/api/
+.packages
+
+# Android
+**/android/**/gradle-wrapper.jar
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/**/*.jks
+
+# iOS/macOS
+**/ios/**/Pods/
+**/ios/**/xcuserdata/
+**/ios/Flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Sistema
+.DS_Store
+*.log
+*.pyc
+*.swp
+
+# Node (se houver)
+node_modules/
+
+# Firebase / Vercel (opcional)
+.firebase/
+.vercel/
+
+# Arquivos grandes
+*.zip
