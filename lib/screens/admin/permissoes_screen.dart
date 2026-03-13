@@ -277,31 +277,42 @@ class _DialogPermissoesState extends State<_DialogPermissoes> {
                         children: [
                           Text(ModulosPermissao.label(p.modulo), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          Row(
+                          Wrap(
+                            spacing: 24,
+                            runSpacing: 4,
                             children: [
-                              CheckboxListTile(
-                                value: p.adicionar,
-                                onChanged: (v) => _atualizar(p.modulo, adicionar: v),
-                                title: const Text('Adicionar', style: TextStyle(fontSize: 14)),
-                                contentPadding: EdgeInsets.zero,
-                                controlAffinity: ListTileControlAffinity.leading,
-                                dense: true,
+                              SizedBox(
+                                width: 140,
+                                child: CheckboxListTile(
+                                  value: p.adicionar,
+                                  onChanged: (v) => _atualizar(p.modulo, adicionar: v),
+                                  title: const Text('Adicionar', style: TextStyle(fontSize: 14)),
+                                  contentPadding: EdgeInsets.zero,
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  dense: true,
+                                ),
                               ),
-                              CheckboxListTile(
-                                value: p.editar,
-                                onChanged: (v) => _atualizar(p.modulo, editar: v),
-                                title: const Text('Editar', style: TextStyle(fontSize: 14)),
-                                contentPadding: EdgeInsets.zero,
-                                controlAffinity: ListTileControlAffinity.leading,
-                                dense: true,
+                              SizedBox(
+                                width: 120,
+                                child: CheckboxListTile(
+                                  value: p.editar,
+                                  onChanged: (v) => _atualizar(p.modulo, editar: v),
+                                  title: const Text('Editar', style: TextStyle(fontSize: 14)),
+                                  contentPadding: EdgeInsets.zero,
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  dense: true,
+                                ),
                               ),
-                              CheckboxListTile(
-                                value: p.excluir,
-                                onChanged: (v) => _atualizar(p.modulo, excluir: v),
-                                title: const Text('Excluir', style: TextStyle(fontSize: 14)),
-                                contentPadding: EdgeInsets.zero,
-                                controlAffinity: ListTileControlAffinity.leading,
-                                dense: true,
+                              SizedBox(
+                                width: 120,
+                                child: CheckboxListTile(
+                                  value: p.excluir,
+                                  onChanged: (v) => _atualizar(p.modulo, excluir: v),
+                                  title: const Text('Excluir', style: TextStyle(fontSize: 14)),
+                                  contentPadding: EdgeInsets.zero,
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  dense: true,
+                                ),
                               ),
                             ],
                           ),
