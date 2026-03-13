@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -6,6 +7,7 @@ import 'modules/usuarios/models/usuario_model.dart';
 import 'modules/usuarios/repositories/usuario_repository.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/auth/nova_senha_screen.dart';
 import 'screens/configuracoes/configuracoes_screen.dart';
 import 'screens/profile/atualizar_dados_screen.dart';
 import 'screens/organograma/organograma_screen.dart';
@@ -15,17 +17,36 @@ import 'services/background_preference_service.dart';
 import 'theme/pedido_certo_theme.dart';
 import 'widgets/constrained_content.dart';
 
+/// True quando o usuário entrou pelo link "Redefinir senha" do e-mail (web).
+bool _pendingPasswordRecovery = false;
+bool get pendingPasswordRecovery => _pendingPasswordRecovery;
+void clearPendingPasswordRecovery() {
+  _pendingPasswordRecovery = false;
+}
+
 /// Inicialização assíncrona do app. Usado por web_entrypoint para aguardar
 /// antes do bootstrap encerrar, evitando tela branca na web.
 Future<void> runPedidoCerto() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
 
+  // Detectar link de redefinição de senha (antes do Supabase processar a URL)
+  if (kIsWeb) {
+    final uri = Uri.base;
+    if (uri.fragment.contains('type=recovery') ||
+        uri.queryParameters['type'] == 'recovery') {
+      _pendingPasswordRecovery = true;
+    }
+  }
+
   try {
     await Supabase.initialize(
       url: 'https://bwdyzdhguwknbcagdado.supabase.co',
       anonKey:
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3ZHl6ZGhndXdrbmJjYWdkYWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMjc4MTIsImV4cCI6MjA4NzcwMzgxMn0.K8r2jN4b9AH6fev9zUfQ5yJa7hb42MvepC78dPAkXtw',
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.implicit,
+      ),
     );
   } catch (e, stack) {
     runApp(_ErroInicializacaoApp(erro: e, stack: stack));
@@ -119,6 +140,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     final session = Supabase.instance.client.auth.currentSession;
+    if (session != null && pendingPasswordRecovery) {
+      return NovaSenhaScreen(
+        onSucesso: () {
+          clearPendingPasswordRecovery();
+          setState(() {});
+        },
+      );
+    }
     if (session != null) {
       return LoggedInWrapper(onSair: _goToLoggedIn);
     }
