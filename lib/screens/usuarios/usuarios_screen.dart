@@ -311,13 +311,6 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
             icon: Icons.account_tree,
             onTap: () => _navigateTo('organograma'),
           ),
-          SidebarMenuItem(
-            id: 'duplicados',
-            label: 'Usuários duplicados',
-            icon: Icons.group_remove,
-            onTap: () => _navigateTo('duplicados'),
-            visible: _ehAdmin,
-          ),
         ],
       ),
       SidebarMenuBlock(
@@ -375,6 +368,13 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
             label: 'Usuários do sistema',
             icon: Icons.people_outline,
             onTap: () => _navigateTo('usuarios'),
+            visible: _ehAdmin,
+          ),
+          SidebarMenuItem(
+            id: 'duplicados',
+            label: 'Usuários duplicados',
+            icon: Icons.group_remove,
+            onTap: () => _navigateTo('duplicados'),
             visible: _ehAdmin,
           ),
         ],

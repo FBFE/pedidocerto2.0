@@ -61,7 +61,7 @@ class AdminSidebarMenu extends StatelessWidget {
   final VoidCallback? onToggleExpand;
 
   static const double sidebarWidth = 260;
-  static const double sidebarWidthCollapsed = 72;
+  static const double sidebarWidthCollapsed = 56;
 
   double get width => expanded ? sidebarWidth : sidebarWidthCollapsed;
 
@@ -77,19 +77,21 @@ class AdminSidebarMenu extends StatelessWidget {
           right: BorderSide(color: PedidoCertoTheme.mediumGray.withValues(alpha: 0.3)),
         ),
       ),
+      clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
           // Logo / Título + botão expandir-recolher
           Padding(
-            padding: EdgeInsets.fromLTRB(expanded ? 20 : 12, 24, expanded ? 12 : 8, 20),
+            padding: EdgeInsets.fromLTRB(expanded ? 20 : 5, 24, expanded ? 12 : 5, 20),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: expanded ? 40 : 32,
-                  height: expanded ? 40 : 32,
+                  width: expanded ? 40 : 20,
+                  height: expanded ? 40 : 20,
                   decoration: BoxDecoration(
                     color: PedidoCertoTheme.primaryBlue,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Center(
                     child: Text(
@@ -97,7 +99,7 @@ class AdminSidebarMenu extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: expanded ? 14 : 12,
+                        fontSize: expanded ? 14 : 9,
                       ),
                     ),
                   ),
@@ -122,12 +124,12 @@ class AdminSidebarMenu extends StatelessWidget {
                       tooltip: 'Recolher menu',
                     ),
                 ] else ...[
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   if (onToggleExpand != null)
                     IconButton(
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                      icon: const Icon(Icons.menu, color: Colors.white70, size: 22),
+                      constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                      icon: const Icon(Icons.menu, color: Colors.white70, size: 18),
                       onPressed: onToggleExpand,
                       tooltip: 'Expandir menu',
                     ),
@@ -139,7 +141,7 @@ class AdminSidebarMenu extends StatelessWidget {
           // Blocos de menu
           Expanded(
             child: ListView(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: expanded ? 0 : 8),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: expanded ? 0 : 5),
               children: [
                 for (final block in menuBlocks) ...[
                   if (expanded)
@@ -166,7 +168,7 @@ class AdminSidebarMenu extends StatelessWidget {
                               ? PedidoCertoTheme.primaryBlue.withValues(alpha: 0.2)
                               : null,
                           padding: EdgeInsets.symmetric(
-                            horizontal: expanded ? 16 : 12,
+                            horizontal: expanded ? 16 : 6,
                             vertical: 10,
                           ),
                           child: Row(
@@ -210,7 +212,7 @@ class AdminSidebarMenu extends StatelessWidget {
           const Divider(height: 1, color: Colors.white24),
           // Rodapé: Configuração do usuário + Sair
           Padding(
-            padding: EdgeInsets.all(expanded ? 16 : 8),
+            padding: EdgeInsets.all(expanded ? 16 : 5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
@@ -225,20 +227,21 @@ class AdminSidebarMenu extends StatelessWidget {
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                             vertical: 10,
-                            horizontal: expanded ? 12 : 8,
+                            horizontal: expanded ? 12 : 5,
                           ),
                           child: Row(
                             mainAxisAlignment: expanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               CircleAvatar(
-                                radius: expanded ? 18 : 16,
+                                radius: expanded ? 18 : 14,
                                 backgroundColor: PedidoCertoTheme.primaryBlue.withValues(alpha: 0.3),
                                 child: Text(
                                   userName.isNotEmpty ? userName[0].toUpperCase() : '?',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
-                                    fontSize: expanded ? 16 : 14,
+                                    fontSize: expanded ? 16 : 12,
                                   ),
                                 ),
                               ),
