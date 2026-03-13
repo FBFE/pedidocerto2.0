@@ -10,6 +10,7 @@ import '../../modules/marcas_fabricantes/repositories/marca_fabricante_repositor
 import '../../modules/unidades_medida/models/unidade_medida_model.dart';
 import '../../modules/unidades_medida/repositories/unidade_medida_repository.dart';
 import '../../utils/input_formatters.dart';
+import 'adicionar_credor_ata_screen.dart';
 import 'editar_ata_screen.dart';
 import 'selecionar_itens_ata_screen.dart';
 
@@ -491,6 +492,31 @@ class _DetalheAtaScreenState extends State<DetalheAtaScreen> {
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.add_business),
+                        label: const Text('Cadastrar mais credores'),
+                        onPressed: () async {
+                          final cnpjsJaNaAta = _credoresComItens
+                              .map((c) => (c['cnpj']?.toString() ?? '').replaceAll(RegExp(r'[^\d]'), ''))
+                              .where((c) => c.length == 14)
+                              .toList();
+                          final adicionou = await Navigator.of(context).push<bool>(
+                            MaterialPageRoute(
+                              builder: (context) => AdicionarCredorAtaScreen(
+                                ataId: _ata.id!,
+                                numeroAta: _ata.numeroExibicao,
+                                cnpjsJaNaAta: cnpjsJaNaAta,
+                              ),
+                            ),
+                          );
+                          if (adicionou == true) _carregar();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF1E1E1E),
+                          side: const BorderSide(color: Color(0xFF1E1E1E)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       if (_credoresComItens.isEmpty)
                         Card(
                           child: Padding(

@@ -66,6 +66,19 @@ class AtaRepository {
     return (ata: ataInserida, credorId: credorInserido.id!);
   }
 
+  /// Adiciona um credor (fornecedor) a uma ata já existente. Não verifica duplicidade aqui (validar CNPJ na UI).
+  Future<String> addCredorToAta({required String ataId, required AtaCredorModel credor}) async {
+    final json = credor.toJson()..remove('id');
+    json['ata_id'] = ataId;
+    final credorResponse = await _supabase
+        .from('ata_credores')
+        .insert(json)
+        .select()
+        .single();
+    final credorInserido = AtaCredorModel.fromJson(Map<String, dynamic>.from(credorResponse));
+    return credorInserido.id!;
+  }
+
   /// Salva sub-ata (ata + um credor + itens). Pode haver várias atas com mesmo número (um por credor).
   Future<AtaModel> saveAtaCompleta({
     required AtaModel ata,

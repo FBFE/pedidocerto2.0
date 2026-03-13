@@ -28,12 +28,20 @@ class SelecionarItensAtaScreen extends StatefulWidget {
   State<SelecionarItensAtaScreen> createState() => _SelecionarItensAtaScreenState();
 }
 
+/// Chave estável para um item (persiste entre buscas).
+String _chaveItem(Map<String, dynamic> item) {
+  final cod = item['codigo']?.toString() ?? '';
+  final tipo = item['tipo_item_padrao']?.toString() ?? '';
+  return '$cod|$tipo';
+}
+
 class _SelecionarItensAtaScreenState extends State<SelecionarItensAtaScreen> {
   final _catmedRepo = CatmedRepository();
   final _renemRepo = RenemRepository();
 
   List<Map<String, dynamic>> _itensBanco = [];
-  final Set<int> _selecionados = {};
+  /// Itens já selecionados (lista mantida entre buscas).
+  final List<Map<String, dynamic>> _itensSelecionadosList = [];
   final _termoBusca = TextEditingController();
   bool _carregando = true;
   String? _erro;
@@ -72,13 +80,11 @@ class _SelecionarItensAtaScreenState extends State<SelecionarItensAtaScreen> {
           _carregando = false;
         });
       } else {
-        // material e opme: renem_equipamentos (OPME usa o mesmo banco; filtrar por classificacao 'OPME' se existir)
         final list = await _renemRepo.getEquipamentos(
           termoBusca: _termoBusca.text.trim().isEmpty ? null : _termoBusca.text.trim(),
           classificacaoFiltro: widget.tipoAta == 'opme' ? 'OPME' : null,
           limite: 200,
         );
-        // Se tipo opme e não há classificacao OPME no banco, busca todos
         final listaRenem = list.isNotEmpty
             ? list
             : await _renemRepo.getEquipamentos(termoBusca: _termoBusca.text.trim().isEmpty ? null : _termoBusca.text.trim(), limite: 200);
@@ -103,10 +109,23 @@ class _SelecionarItensAtaScreenState extends State<SelecionarItensAtaScreen> {
     }
   }
 
+  Set<String> get _chavesSelecionadas =>
+      _itensSelecionadosList.map((e) => _chaveItem(e)).toSet();
+
+  void _toggleSelecao(Map<String, dynamic> item) {
+    final chave = _chaveItem(item);
+    setState(() {
+      if (_chavesSelecionadas.contains(chave)) {
+        _itensSelecionadosList.removeWhere((e) => _chaveItem(e) == chave);
+      } else {
+        _itensSelecionadosList.add(Map<String, dynamic>.from(item));
+      }
+    });
+  }
+
   void _irParaDetalharItens() {
-    final itensSelecionados = _selecionados
-        .where((idx) => idx < _itensBanco.length)
-        .map((idx) => Map<String, dynamic>.from(_itensBanco[idx]))
+    final itensSelecionados = _itensSelecionadosList
+        .map((e) => Map<String, dynamic>.from(e))
         .toList();
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -163,6 +182,40 @@ class _SelecionarItensAtaScreenState extends State<SelecionarItensAtaScreen> {
               ],
             ),
           ),
+          if (_itensSelecionadosList.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Itens já selecionados (${_itensSelecionadosList.length})',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: _itensSelecionadosList.map((item) {
+                      final cod = item['codigo']?.toString() ?? '';
+                      final desc = (item['descricao']?.toString() ?? '').length > 40
+                          ? '${(item['descricao'] as String).substring(0, 40)}...'
+                          : (item['descricao']?.toString() ?? '');
+                      return Chip(
+                        label: Text('$cod – $desc', maxLines: 1, overflow: TextOverflow.ellipsis),
+                        deleteIcon: const Icon(Icons.close, size: 18),
+                        onDeleted: () => _toggleSelecao(item),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
@@ -187,18 +240,10 @@ class _SelecionarItensAtaScreenState extends State<SelecionarItensAtaScreen> {
                           final item = _itensBanco[index];
                           final codigo = item['codigo'] as String? ?? '';
                           final descricao = item['descricao'] as String? ?? '';
-                          final selected = _selecionados.contains(index);
+                          final selected = _chavesSelecionadas.contains(_chaveItem(item));
                           return CheckboxListTile(
                             value: selected,
-                            onChanged: (v) {
-                              setState(() {
-                                if (v == true) {
-                                  _selecionados.add(index);
-                                } else {
-                                  _selecionados.remove(index);
-                                }
-                              });
-                            },
+                            onChanged: (_) => _toggleSelecao(item),
                             title: Text(descricao, maxLines: 2, overflow: TextOverflow.ellipsis),
                             subtitle: Text(codigo, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                           );
@@ -209,7 +254,7 @@ class _SelecionarItensAtaScreenState extends State<SelecionarItensAtaScreen> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Text('${_selecionados.length} item(ns) selecionado(s)', style: Theme.of(context).textTheme.bodyMedium),
+                Text('${_itensSelecionadosList.length} item(ns) selecionado(s)', style: Theme.of(context).textTheme.bodyMedium),
                 const Spacer(),
                 FilledButton.icon(
                   onPressed: _irParaDetalharItens,
