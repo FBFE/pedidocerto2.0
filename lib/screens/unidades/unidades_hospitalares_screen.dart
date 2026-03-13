@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../theme/pedido_certo_theme.dart';
+import '../../modules/usuarios/models/usuario_model.dart';
 import '../../modules/unidades_lotacao/models/unidade_hospitalar_model.dart';
 import '../../modules/unidades_lotacao/repositories/unidade_hospitalar_repository.dart';
+import '../../modules/unidades_lotacao/repositories/gabinete_gestao_hospitalar_repository.dart';
 import '../../widgets/constrained_content.dart';
 import 'unidade_hospitalar_detalhe_screen.dart';
 import 'unidade_hospitalar_form_screen.dart';
@@ -11,11 +13,14 @@ import 'unidade_hospitalar_form_screen.dart';
 class UnidadesHospitalaresScreen extends StatefulWidget {
   const UnidadesHospitalaresScreen({
     super.key,
+    this.usuarioLogado,
     this.onAbrirMeusDados,
     this.onSair,
     this.onBack,
   });
 
+  /// Usuário logado: se for do Gabinete de Gestão Hospitalar, só as unidades configuradas são exibidas.
+  final UsuarioModel? usuarioLogado;
   final VoidCallback? onAbrirMeusDados;
   final VoidCallback? onSair;
   /// Quando preenchido, o botão voltar chama este callback (ex.: tela embarcada no dashboard).
@@ -29,6 +34,7 @@ class UnidadesHospitalaresScreen extends StatefulWidget {
 class _UnidadesHospitalaresScreenState
     extends State<UnidadesHospitalaresScreen> {
   final _repo = UnidadeHospitalarRepository();
+  final _gabineteRepo = GabineteGestaoHospitalarRepository();
   List<UnidadeHospitalarModel> _lista = [];
   String? _erro;
   bool _carregando = true;
@@ -57,7 +63,13 @@ class _UnidadesHospitalaresScreenState
       _erro = null;
     });
     try {
-      final lista = await _repo.getAll();
+      List<UnidadeHospitalarModel> lista = await _repo.getAll();
+      final usuario = widget.usuarioLogado;
+      if (usuario != null && usuario.ehDoGabineteGestaoHospitalar) {
+        final ids = await _gabineteRepo.getUnidadeIds();
+        final idSet = ids.toSet();
+        lista = lista.where((u) => u.id != null && idSet.contains(u.id)).toList();
+      }
       setState(() {
         _lista = lista;
         _carregando = false;

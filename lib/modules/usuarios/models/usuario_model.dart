@@ -145,4 +145,12 @@ class UsuarioModel {
 
   bool get isPendenteAprovacao => perfilSistema == 'pendente_aprovacao';
   bool get isAdministrador => perfilSistema == 'administrador';
+
+  /// Verdadeiro se o usuário pertence ao Gabinete do Secretário Adjunto de Gestão Hospitalar
+  /// (identificado pelo setor de lotação).
+  bool get ehDoGabineteGestaoHospitalar {
+    final setor = setorLotacao?.toLowerCase() ?? '';
+    return setor.contains('gabinete') &&
+        (setor.contains('gestão hospitalar') || setor.contains('gestao hospitalar'));
+  }
 }

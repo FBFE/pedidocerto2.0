@@ -62,6 +62,96 @@ class _LoginScreenState extends State<LoginScreen> {
     if (mounted && _loading) setState(() => _loading = false);
   }
 
+  Future<void> _esqueciMinhaSenha() async {
+    final email = _emailController.text.trim();
+    String? emailParaEnvio = email.isNotEmpty ? email : null;
+
+    if (emailParaEnvio == null && mounted) {
+      final controller = TextEditingController();
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Redefinir senha'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Informe o e-mail da sua conta. Enviaremos um link para redefinir a senha.',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'E-mail',
+                    hintText: 'seu@email.com',
+                    border: OutlineInputBorder(),
+                  ),
+                  onSubmitted: (v) {
+                    if (v.trim().isNotEmpty) Navigator.of(context).pop(v.trim());
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  final e = controller.text.trim();
+                  if (e.isEmpty) return;
+                  Navigator.of(context).pop(e);
+                },
+                child: const Text('Enviar'),
+              ),
+            ],
+          );
+        },
+      );
+      emailParaEnvio = result;
+    }
+
+    if (emailParaEnvio == null || emailParaEnvio.isEmpty) return;
+
+    setState(() {
+      _erro = null;
+      _loading = true;
+    });
+    try {
+      await Supabase.instance.client.auth.resetPasswordForEmail(emailParaEnvio);
+      if (mounted) {
+        setState(() => _loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Se este e-mail estiver cadastrado, você receberá um link para redefinir a senha. Verifique a caixa de entrada e o spam.',
+            ),
+            duration: Duration(seconds: 6),
+          ),
+        );
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        setState(() {
+          _erro = mensagemErroAuthAmigavel(e.message);
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _erro = e.toString();
+          _loading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
@@ -153,9 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: authTextLink(
                       text: 'Esqueci minha senha',
-                      onTap: () {
-                        // TODO: navegar para recuperação de senha
-                      },
+                      onTap: _esqueciMinhaSenha,
                     ),
                   ),
                   const SizedBox(height: 24),

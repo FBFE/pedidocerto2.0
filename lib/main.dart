@@ -325,6 +325,7 @@ class _TesteUsuariosPageState extends State<TesteUsuariosPage> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => UnidadesHospitalaresScreen(
+                    usuarioLogado: widget.usuarioLogado,
                     onAbrirMeusDados: widget.onAbrirMeusDados,
                     onSair: widget.onSair,
                   ),
@@ -520,6 +521,7 @@ class _TesteUsuariosPageState extends State<TesteUsuariosPage> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => UnidadesHospitalaresScreen(
+                                usuarioLogado: widget.usuarioLogado,
                                 onAbrirMeusDados: widget.onAbrirMeusDados,
                                 onSair: widget.onSair,
                               ),

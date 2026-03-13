@@ -26,6 +26,7 @@ import '../sigtap/procedimentos_screen.dart';
 import '../catmed/catmed_screen.dart';
 import '../renem/renem_screen.dart';
 import '../unidades/unidades_hospitalares_screen.dart';
+import '../admin/gabinete_unidades_screen.dart';
 import 'duplicados_screen.dart';
 
 /// Dados do painel expostos para as rotas do Navigator de conteúdo (dashboard/usuários atualizam).
@@ -377,6 +378,13 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
             onTap: () => _navigateTo('duplicados'),
             visible: _ehAdmin,
           ),
+          SidebarMenuItem(
+            id: 'gabinete-unidades',
+            label: 'Unidades do Gabinete (Gestão Hospitalar)',
+            icon: Icons.business_center,
+            onTap: () => _navigateTo('gabinete-unidades'),
+            visible: _ehAdmin,
+          ),
         ],
       ),
     ];
@@ -448,12 +456,15 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
         return FornecedoresScreen(onBack: _voltarParaDashboard);
       case 'unidades':
         return UnidadesHospitalaresScreen(
+          usuarioLogado: widget.usuarioLogado,
           onAbrirMeusDados: _abrirMeusDados,
           onSair: widget.onSair,
           onBack: _voltarParaDashboard,
         );
       case 'duplicados':
         return DuplicadosScreen(onBack: _voltarParaDashboard);
+      case 'gabinete-unidades':
+        return GabineteUnidadesScreen(onBack: _voltarParaDashboard);
       default:
         return _buildEmbeddedContent();
     }
@@ -488,6 +499,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
         return FornecedoresScreen(onBack: _voltarParaDashboard);
       case 'unidades':
         return UnidadesHospitalaresScreen(
+          usuarioLogado: widget.usuarioLogado,
           onAbrirMeusDados: _abrirMeusDados,
           onSair: widget.onSair,
           onBack: _voltarParaDashboard,
@@ -496,6 +508,8 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
         return DuplicadosScreen(
           onBack: _voltarParaDashboard,
         );
+      case 'gabinete-unidades':
+        return GabineteUnidadesScreen(onBack: _voltarParaDashboard);
       default:
         return const SizedBox.shrink();
     }
