@@ -59,12 +59,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           perfilSistema: 'pendente_aprovacao',
         ));
       } catch (_) {
-        // Se falhar (ex.: RLS), o usuário ainda pode completar perfil na tela "Meus dados"
+        // Se falhar (ex.: RLS), o usuário poderá completar perfil após confirmar o e-mail
       }
       if (!mounted) return;
       setState(() => _loading = false);
-      await _mostrarPopupSucesso();
-      if (mounted) widget.onRegisterSuccess?.call();
+      await _mostrarPopupConfirmarEmail(email);
+      if (mounted) widget.onNavigateToLogin?.call();
     } on AuthException catch (e) {
       if (mounted) {
         setState(() {
@@ -83,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (mounted && _loading) setState(() => _loading = false);
   }
 
-  Future<void> _mostrarPopupSucesso() async {
+  Future<void> _mostrarPopupConfirmarEmail(String email) async {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -92,24 +92,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green.shade700, size: 28),
+            Icon(Icons.mark_email_unread_outlined,
+                color: Colors.green.shade700, size: 28),
             const SizedBox(width: 12),
-            const Text(
-              'Cadastro realizado!',
-              style: TextStyle(color: Color(0xFF1B5E20), fontSize: 20),
+            const Expanded(
+              child: Text(
+                'Confirme seu e-mail',
+                style: TextStyle(color: Color(0xFF1B5E20), fontSize: 20),
+              ),
             ),
           ],
         ),
-        content: const Text(
-          'Sua conta foi criada com sucesso.\n\n'
-          'Seu acesso está pendente de aprovação. Na próxima tela você pode editar suas informações. '
-          'Após aprovação por um administrador, você poderá acessar o painel do sistema.',
-          style: TextStyle(fontSize: 15, height: 1.4),
+        content: Text(
+          'Enviamos um e-mail de confirmação para:\n\n$email\n\n'
+          'Clique no link que enviamos para ativar sua conta. '
+          'Depois, faça login com seu e-mail e senha.\n\n'
+          'Se não encontrar o e-mail, verifique a pasta de spam.',
+          style: const TextStyle(fontSize: 15, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK',
+            child: Text('Ir para o login',
                 style: TextStyle(
                     color: Colors.green.shade700, fontWeight: FontWeight.w600)),
           ),

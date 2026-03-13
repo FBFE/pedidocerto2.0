@@ -8,6 +8,9 @@ String mensagemErroAuthAmigavel(String mensagem) {
   if (m.contains('invalid login') || m.contains('invalid email')) {
     return 'E-mail ou senha inválidos. Verifique e tente novamente.';
   }
+  if (m.contains('email not confirmed') || m.contains('not confirmed')) {
+    return 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada e o spam.';
+  }
   if (m.contains('already registered') || m.contains('already exists')) {
     return 'Este e-mail já está cadastrado. Faça login ou use "Esqueci minha senha".';
   }
