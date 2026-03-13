@@ -39,6 +39,12 @@ class ProcedimentoRepository {
     return (response as List).map((e) => ProcedimentoSigtapModel.fromJson(e)).toList();
   }
 
+  /// Total de procedimentos (para KPI do dashboard).
+  Future<int> getCount() async {
+    final res = await _supabase.from('procedimentos_sigtap').select('co_procedimento');
+    return (res as List).length;
+  }
+
   Future<ProcedimentoSigtapModel?> getProcedimentoPorCodigo(String codigo) async {
     final response = await _supabase
         .from('procedimentos_sigtap')

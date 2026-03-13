@@ -7,7 +7,8 @@ import 'importar_catmed_screen.dart';
 
 class CatmedScreen extends StatefulWidget {
   final bool isSelecting;
-  const CatmedScreen({super.key, this.isSelecting = false});
+  final VoidCallback? onBack;
+  const CatmedScreen({super.key, this.isSelecting = false, this.onBack});
 
   @override
   State<CatmedScreen> createState() => _CatmedScreenState();
@@ -230,6 +231,12 @@ class _CatmedScreenState extends State<CatmedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
         title: const Text('Medicamentos (CATMED)'),
         actions: [
           IconButton(

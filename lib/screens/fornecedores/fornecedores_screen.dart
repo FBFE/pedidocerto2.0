@@ -6,7 +6,8 @@ import 'fornecedor_form_screen.dart';
 
 /// Lista de fornecedores cadastrados (CNPJ único). Abre formulário para novo/editar.
 class FornecedoresScreen extends StatefulWidget {
-  const FornecedoresScreen({super.key});
+  const FornecedoresScreen({super.key, this.onBack});
+  final VoidCallback? onBack;
 
   @override
   State<FornecedoresScreen> createState() => _FornecedoresScreenState();
@@ -59,6 +60,12 @@ class _FornecedoresScreenState extends State<FornecedoresScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
         title: const Text('Fornecedores'),
         backgroundColor: const Color(0xFF1E1E1E),
         foregroundColor: Colors.white,

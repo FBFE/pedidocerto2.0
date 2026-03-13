@@ -33,6 +33,12 @@ class RenemRepository {
     return (response as List).map((json) => RenemModel.fromJson(json)).toList();
   }
 
+  /// Total de equipamentos (para KPI do dashboard).
+  Future<int> getCount() async {
+    final res = await _supabase.from('renem_equipamentos').select('cod_item');
+    return (res as List).length;
+  }
+
   Future<List<String>> getClassificacoes() async {
     final response = await _supabase
         .from('renem_equipamentos')

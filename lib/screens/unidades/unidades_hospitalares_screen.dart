@@ -13,10 +13,13 @@ class UnidadesHospitalaresScreen extends StatefulWidget {
     super.key,
     this.onAbrirMeusDados,
     this.onSair,
+    this.onBack,
   });
 
   final VoidCallback? onAbrirMeusDados;
   final VoidCallback? onSair;
+  /// Quando preenchido, o botão voltar chama este callback (ex.: tela embarcada no dashboard).
+  final VoidCallback? onBack;
 
   @override
   State<UnidadesHospitalaresScreen> createState() =>
@@ -29,6 +32,8 @@ class _UnidadesHospitalaresScreenState
   List<UnidadeHospitalarModel> _lista = [];
   String? _erro;
   bool _carregando = true;
+  /// true = grid, false = lista (toggle como na referência).
+  bool _useGridView = true;
 
   /// Nome e e-mail do usuário logado (Supabase Auth) para o header.
   String get _nomeUsuario {
@@ -216,8 +221,14 @@ class _UnidadesHospitalaresScreenState
           IconButton(
             icon: const Icon(Icons.arrow_back),
             tooltip: 'Voltar',
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: widget.onBack ?? () => Navigator.of(context).pop(),
           ),
+          if (_lista.isNotEmpty)
+            IconButton(
+              icon: Icon(_useGridView ? Icons.view_list : Icons.grid_view),
+              tooltip: _useGridView ? 'Exibir como lista' : 'Exibir em grid',
+              onPressed: () => setState(() => _useGridView = !_useGridView),
+            ),
           if (widget.onAbrirMeusDados != null)
             IconButton(
               icon: const Icon(Icons.person),
@@ -288,42 +299,61 @@ class _UnidadesHospitalaresScreenState
                       ),
                     )
                   : ConstrainedContent(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final width = constraints.maxWidth;
-                            final crossAxisCount = width > 1200
-                                ? 4
-                                : (width > 800 ? 3 : (width > 500 ? 2 : 1));
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                mainAxisSpacing: 16,
-                                crossAxisSpacing: 16,
-                                childAspectRatio: 1.2,
+                      child: _useGridView
+                          ? SingleChildScrollView(
+                              padding: const EdgeInsets.all(24),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final width = constraints.maxWidth;
+                                  final crossAxisCount = width > 1200
+                                      ? 4
+                                      : (width > 800 ? 3 : (width > 500 ? 2 : 1));
+                                  return GridView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossAxisCount,
+                                      mainAxisSpacing: 16,
+                                      crossAxisSpacing: 16,
+                                      childAspectRatio: 1.2,
+                                    ),
+                                    itemCount: _lista.length,
+                                    itemBuilder: (context, i) {
+                                      final u = _lista[i];
+                                      final logoUrl =
+                                          u.logoUrl != null && u.logoUrl!.isNotEmpty
+                                              ? _repo.logoPublicUrl(u.logoUrl)
+                                              : null;
+                                      return _GridUnidadeCard(
+                                        unidade: u,
+                                        logoUrl: logoUrl,
+                                        onTap: () => _abrirDetalhe(u),
+                                        onLongPress: () => _mostrarMenuUnidade(u),
+                                      );
+                                    },
+                                  );
+                                },
                               ),
+                            )
+                          : ListView.separated(
+                              padding: const EdgeInsets.all(24),
                               itemCount: _lista.length,
+                              separatorBuilder: (_, __) => const SizedBox(height: 8),
                               itemBuilder: (context, i) {
                                 final u = _lista[i];
                                 final logoUrl =
                                     u.logoUrl != null && u.logoUrl!.isNotEmpty
                                         ? _repo.logoPublicUrl(u.logoUrl)
                                         : null;
-                                return _GridUnidadeCard(
+                                return _ListUnidadeTile(
                                   unidade: u,
                                   logoUrl: logoUrl,
                                   onTap: () => _abrirDetalhe(u),
                                   onLongPress: () => _mostrarMenuUnidade(u),
                                 );
                               },
-                            );
-                          },
-                        ),
-                      ),
+                            ),
                     ),
       floatingActionButton: _erro == null
           ? FloatingActionButton(
@@ -332,6 +362,97 @@ class _UnidadesHospitalaresScreenState
               child: const Icon(Icons.grid_view),
             )
           : null,
+    );
+  }
+}
+
+/// Item de lista: logo + nome + descrição/sigla.
+class _ListUnidadeTile extends StatelessWidget {
+  const _ListUnidadeTile({
+    required this.unidade,
+    this.logoUrl,
+    required this.onTap,
+    required this.onLongPress,
+  });
+
+  final UnidadeHospitalarModel unidade;
+  final String? logoUrl;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final descricao = unidade.descricao ?? unidade.sigla ?? '';
+    return Material(
+      color: const Color(0xFFEEEEEE),
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: logoUrl != null
+                      ? Image.network(
+                          logoUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              Icon(Icons.business,
+                                  size: 32,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outline
+                                      .withValues(alpha: 0.6)),
+                        )
+                      : Icon(Icons.business,
+                          size: 32,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withValues(alpha: 0.6)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      unidade.nome,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (descricao.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        descricao,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.outline),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -22,10 +22,13 @@ class OrganogramaScreen extends StatefulWidget {
     super.key,
     this.onAbrirMeusDados,
     this.onSair,
+    this.onBack,
   });
 
   final VoidCallback? onAbrirMeusDados;
   final VoidCallback? onSair;
+  /// Quando preenchido, o botão voltar chama este callback (ex.: tela embarcada no dashboard).
+  final VoidCallback? onBack;
 
   @override
   State<OrganogramaScreen> createState() => _OrganogramaScreenState();
@@ -739,7 +742,7 @@ class _OrganogramaScreenState extends State<OrganogramaScreen> {
         title: const Text('Organograma'),
         leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop()),
+            onPressed: widget.onBack ?? () => Navigator.of(context).pop()),
         actions: [
           if (widget.onAbrirMeusDados != null)
             IconButton(

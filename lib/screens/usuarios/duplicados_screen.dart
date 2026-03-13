@@ -3,7 +3,8 @@ import '../../modules/usuarios/models/usuario_model.dart';
 import '../../modules/usuarios/repositories/usuario_repository.dart';
 
 class DuplicadosScreen extends StatefulWidget {
-  const DuplicadosScreen({super.key});
+  const DuplicadosScreen({super.key, this.onBack});
+  final VoidCallback? onBack;
 
   @override
   State<DuplicadosScreen> createState() => _DuplicadosScreenState();
@@ -102,6 +103,12 @@ class _DuplicadosScreenState extends State<DuplicadosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
         title: const Text('Usuários Duplicados'),
         backgroundColor: const Color(0xFF1E1E1E),
         foregroundColor: Colors.white,

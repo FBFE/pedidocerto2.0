@@ -30,4 +30,10 @@ class CatmedRepository {
 
     return (response as List).map((json) => CatmedModel.fromJson(json)).toList();
   }
+
+  /// Total de medicamentos (para KPI do dashboard).
+  Future<int> getCount() async {
+    final res = await _supabase.from('catmed_medicamentos').select('codigo_siag');
+    return (res as List).length;
+  }
 }

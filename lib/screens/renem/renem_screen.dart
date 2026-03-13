@@ -9,8 +9,9 @@ import 'importar_renem_screen.dart';
 class RenemScreen extends StatefulWidget {
   final bool isSelecting;
   final String? initialClassificacao;
+  final VoidCallback? onBack;
   const RenemScreen(
-      {super.key, this.isSelecting = false, this.initialClassificacao});
+      {super.key, this.isSelecting = false, this.initialClassificacao, this.onBack});
 
   @override
   State<RenemScreen> createState() => _RenemScreenState();
@@ -363,6 +364,12 @@ class _RenemScreenState extends State<RenemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
         title: const Text('Equipamentos (RENEM)'),
         actions: [
           IconButton(

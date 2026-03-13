@@ -9,9 +9,10 @@ import 'detalhe_ata_screen.dart';
 
 /// Lista de atas registradas no banco e entrada para cadastro manual de ata.
 class AtasScreen extends StatefulWidget {
-  const AtasScreen({super.key, this.usuarioLogado});
+  const AtasScreen({super.key, this.usuarioLogado, this.onBack});
 
   final UsuarioModel? usuarioLogado;
+  final VoidCallback? onBack;
 
   @override
   State<AtasScreen> createState() => _AtasScreenState();
@@ -106,6 +107,12 @@ class _AtasScreenState extends State<AtasScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
         title: const Text('Banco de Atas'),
         backgroundColor: PedidoCertoTheme.white,
         foregroundColor: const Color(0xFF1F2937),

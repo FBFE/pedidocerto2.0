@@ -7,8 +7,10 @@ import 'dfd_form_screen.dart';
 
 class DfdListScreen extends StatefulWidget {
   final UsuarioModel? usuarioLogado;
+  /// Quando preenchido, o botão voltar da AppBar chama este callback (ex.: tela embarcada no dashboard).
+  final VoidCallback? onBack;
 
-  const DfdListScreen({super.key, this.usuarioLogado});
+  const DfdListScreen({super.key, this.usuarioLogado, this.onBack});
 
   @override
   State<DfdListScreen> createState() => _DfdListScreenState();
@@ -93,6 +95,12 @@ class _DfdListScreenState extends State<DfdListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
         title: const Text('Documentos de Formalização de Demanda (DFD)'),
         backgroundColor: const Color(0xFF1E1E1E),
         foregroundColor: Colors.white,

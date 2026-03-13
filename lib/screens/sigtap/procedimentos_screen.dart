@@ -8,7 +8,8 @@ import 'importar_sigtap_screen.dart';
 
 class ProcedimentosScreen extends StatefulWidget {
   final bool isSelecting;
-  const ProcedimentosScreen({super.key, this.isSelecting = false});
+  final VoidCallback? onBack;
+  const ProcedimentosScreen({super.key, this.isSelecting = false, this.onBack});
 
   @override
   State<ProcedimentosScreen> createState() => _ProcedimentosScreenState();
@@ -381,6 +382,12 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
         title: const Text('Procedimentos SIGTAP'),
         actions: [
           IconButton(
