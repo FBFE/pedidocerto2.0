@@ -70,6 +70,28 @@ class _PermissoesScreenState extends State<PermissoesScreen> {
     return Map.fromEntries(chaves.map((k) => MapEntry(k, map[k]!)));
   }
 
+  Future<void> _mostrarDetalhesUsuario(UsuarioModel usuario) async {
+    if (usuario.id == null) return;
+    List<UsuarioPermissaoModel> permissoes = await _permissaoRepo.getByUsuarioId(usuario.id!);
+    final map = {for (var p in permissoes) p.modulo: p};
+    for (final modulo in ModulosPermissao.todos) {
+      map.putIfAbsent(modulo, () => UsuarioPermissaoModel(usuarioId: usuario.id!, modulo: modulo));
+    }
+    permissoes = ModulosPermissao.todos.map((m) => map[m]!).toList();
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => _DialogDetalhesUsuario(
+        usuario: usuario,
+        permissoes: permissoes,
+        onEditarAtribuicoes: () {
+          Navigator.of(context).pop();
+          _abrirAtribuicoes(usuario);
+        },
+      ),
+    );
+  }
+
   Future<void> _abrirAtribuicoes(UsuarioModel usuario) async {
     if (usuario.id == null) return;
     List<UsuarioPermissaoModel> permissoes = await _permissaoRepo.getByUsuarioId(usuario.id!);
@@ -134,7 +156,7 @@ class _PermissoesScreenState extends State<PermissoesScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              'Usuários agrupados por unidade e setor. Toque em "Atribuições" para definir permissões (Adicionar, Editar, Excluir) por funcionalidade.',
+                              'Usuários agrupados por unidade e setor. Toque no usuário para ver detalhes e permissões; use "Atribuições" para alterar.',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                             const SizedBox(height: 24),
@@ -173,6 +195,7 @@ class _PermissoesScreenState extends State<PermissoesScreen> {
                                             contentPadding: EdgeInsets.zero,
                                             title: Text(u.nome, style: const TextStyle(fontWeight: FontWeight.w500)),
                                             subtitle: Text(u.email ?? '—', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                                            onTap: () => _mostrarDetalhesUsuario(u),
                                             trailing: FilledButton.tonalIcon(
                                               icon: const Icon(Icons.security, size: 18),
                                               label: const Text('Atribuições'),
@@ -188,6 +211,123 @@ class _PermissoesScreenState extends State<PermissoesScreen> {
                           ],
                         ),
                       ),
+      ),
+    );
+  }
+}
+
+/// Diálogo que exibe detalhes do usuário e suas permissões (somente leitura).
+class _DialogDetalhesUsuario extends StatelessWidget {
+  const _DialogDetalhesUsuario({
+    required this.usuario,
+    required this.permissoes,
+    required this.onEditarAtribuicoes,
+  });
+
+  final UsuarioModel usuario;
+  final List<UsuarioPermissaoModel> permissoes;
+  final VoidCallback onEditarAtribuicoes;
+
+  @override
+  Widget build(BuildContext context) {
+    final unidade = usuario.unidadeLotacao?.trim().isEmpty == true ? 'Sem unidade' : (usuario.unidadeLotacao ?? 'Sem unidade');
+    final setor = usuario.setorLotacao?.trim().isEmpty == true ? 'Sem setor' : (usuario.setorLotacao ?? 'Sem setor');
+    final ehAdmin = usuario.isAdministrador;
+
+    return AlertDialog(
+      title: const Text('Detalhes do usuário'),
+      content: SizedBox(
+        width: 420,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _linha(context, 'Nome', usuario.nome),
+              _linha(context, 'E-mail', usuario.email ?? '—'),
+              _linha(context, 'Unidade', unidade),
+              _linha(context, 'Setor', setor),
+              _linha(context, 'Perfil', ehAdmin ? 'Administrador' : 'Usuário'),
+              const SizedBox(height: 16),
+              if (ehAdmin) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.admin_panel_settings, color: Theme.of(context).colorScheme.primary, size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Administrador: acesso total a todas as funcionalidades.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ] else ...[
+                Text(
+                  'Permissões por funcionalidade:',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                ...permissoes.map((p) {
+                  final ad = p.adicionar ? 'Adicionar ✓' : 'Adicionar —';
+                  final ed = p.editar ? 'Editar ✓' : 'Editar —';
+                  final ex = p.excluir ? 'Excluir ✓' : 'Excluir —';
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 160,
+                          child: Text(
+                            ModulosPermissao.label(p.modulo),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            '$ad · $ed · $ex',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.outline),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Fechar')),
+        FilledButton.icon(
+          icon: const Icon(Icons.security, size: 18),
+          label: const Text('Atribuições'),
+          onPressed: () => onEditarAtribuicoes(),
+        ),
+      ],
+    );
+  }
+
+  Widget _linha(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: RichText(
+        text: TextSpan(
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
+          children: [
+            TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+            TextSpan(text: value),
+          ],
+        ),
       ),
     );
   }
