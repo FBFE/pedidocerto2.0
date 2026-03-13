@@ -467,18 +467,14 @@ class _RepresentanteDialogState extends State<_RepresentanteDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _cpf,
-                decoration: const InputDecoration(labelText: 'CPF *', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'CPF', border: OutlineInputBorder()),
                 inputFormatters: [CpfInputFormatter()],
-                obscureText: true,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _rg,
-                decoration: const InputDecoration(labelText: 'RG *', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'RG', border: OutlineInputBorder()),
                 inputFormatters: [RgInputFormatter()],
-                obscureText: true,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(

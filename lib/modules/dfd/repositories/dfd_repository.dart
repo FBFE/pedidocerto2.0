@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../audit/services/audit_log_service.dart';
 import '../models/dfd_model.dart';
 import '../services/dfd_storage_service.dart';
 
@@ -87,10 +88,24 @@ class DfdRepository {
       await _supabase
           .from(_tableName)
           .update({'etp_file_url': path}).eq('id', inserted.id!);
-      return DfdModel.fromJson(
+      final out = DfdModel.fromJson(
           Map<String, dynamic>.from(response)..['etp_file_url'] = path);
+      try {
+        await AuditLogService.logCreate(
+          entityName: _tableName,
+          entityId: out.id,
+          newValue: out.toJson(),
+        );
+      } catch (_) {}
+      return out;
     }
-
+    try {
+      await AuditLogService.logCreate(
+        entityName: _tableName,
+        entityId: inserted.id,
+        newValue: inserted.toJson(),
+      );
+    } catch (_) {}
     return inserted;
   }
 
@@ -102,6 +117,7 @@ class DfdRepository {
 
     await _verificarDuplicidadeEtp(dfd.etpNumero, ignoreId: dfd.id);
 
+    final oldDfd = await getDfdById(dfd.id!);
     String? newPath = dfd.etpFileUrl;
     if (etpBytes != null && etpFileName != null) {
       await _storage.deleteByPath(dfd.etpFileUrl);
@@ -117,7 +133,16 @@ class DfdRepository {
         .eq('id', dfd.id!)
         .select()
         .single();
-    return DfdModel.fromJson(Map<String, dynamic>.from(response));
+    final updated = DfdModel.fromJson(Map<String, dynamic>.from(response));
+    try {
+      await AuditLogService.logUpdate(
+        entityName: _tableName,
+        entityId: dfd.id,
+        oldValue: oldDfd.toJson(),
+        newValue: updated.toJson(),
+      );
+    } catch (_) {}
+    return updated;
   }
 
   Future<void> deleteDfd(String id) async {
@@ -126,5 +151,12 @@ class DfdRepository {
       await _storage.deleteByPath(dfd.etpFileUrl);
     }
     await _supabase.from(_tableName).delete().eq('id', id);
+    try {
+      await AuditLogService.logDelete(
+        entityName: _tableName,
+        entityId: id,
+        oldValue: dfd.toJson(),
+      );
+    } catch (_) {}
   }
 }
