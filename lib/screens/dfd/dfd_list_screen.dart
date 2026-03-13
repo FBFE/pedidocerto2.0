@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../modules/dfd/models/dfd_model.dart';
 import '../../modules/dfd/repositories/dfd_repository.dart';
+import '../../modules/permissoes/models/usuario_permissao_model.dart';
+import '../../modules/permissoes/services/permissao_service.dart';
 import '../../modules/usuarios/models/usuario_model.dart';
 import 'dfd_form_screen.dart';
 
@@ -21,11 +23,26 @@ class _DfdListScreenState extends State<DfdListScreen> {
   bool _carregando = true;
   String? _erro;
   List<DfdModel> _dfds = [];
+  bool _podeAdicionar = false;
+  bool _podeEditar = false;
+  bool _podeExcluir = false;
 
   @override
   void initState() {
     super.initState();
     _carregar();
+    _carregarPermissoes();
+  }
+
+  Future<void> _carregarPermissoes() async {
+    final add = await PermissaoService.canAdicionar(widget.usuarioLogado, ModulosPermissao.dfd);
+    final edit = await PermissaoService.canEditar(widget.usuarioLogado, ModulosPermissao.dfd);
+    final excl = await PermissaoService.canExcluir(widget.usuarioLogado, ModulosPermissao.dfd);
+    if (mounted) setState(() {
+      _podeAdicionar = add;
+      _podeEditar = edit;
+      _podeExcluir = excl;
+    });
   }
 
   Future<void> _carregar() async {
@@ -136,34 +153,38 @@ class _DfdListScreenState extends State<DfdListScreen> {
                                           fontSize: 12, color: Colors.grey)),
                               ],
                             ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.blue),
-                                  onPressed: () => _abrirForm(d),
-                                  tooltip: 'Editar',
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
-                                  onPressed: () => _excluir(d),
-                                  tooltip: 'Excluir',
-                                ),
-                              ],
-                            ),
+                            trailing: (_podeEditar || _podeExcluir)
+                                ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (_podeEditar)
+                                        IconButton(
+                                          icon: const Icon(Icons.edit, color: Colors.blue),
+                                          onPressed: () => _abrirForm(d),
+                                          tooltip: 'Editar',
+                                        ),
+                                      if (_podeExcluir)
+                                        IconButton(
+                                          icon: const Icon(Icons.delete, color: Colors.red),
+                                          onPressed: () => _excluir(d),
+                                          tooltip: 'Excluir',
+                                        ),
+                                    ],
+                                  )
+                                : null,
                           ),
                         );
                       },
                     ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _abrirForm(),
-        icon: const Icon(Icons.add),
-        label: const Text('Novo DFD'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
-      ),
+      floatingActionButton: _podeAdicionar
+          ? FloatingActionButton.extended(
+              onPressed: () => _abrirForm(),
+              icon: const Icon(Icons.add),
+              label: const Text('Novo DFD'),
+              backgroundColor: const Color(0xFF1E1E1E),
+              foregroundColor: Colors.white,
+            )
+          : null,
     );
   }
 }

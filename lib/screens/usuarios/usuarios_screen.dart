@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../theme/pedido_certo_theme.dart';
+import '../../modules/permissoes/services/permissao_service.dart';
 import '../../modules/usuarios/models/usuario_model.dart';
 import '../../modules/usuarios/repositories/usuario_repository.dart';
 import '../../modules/unidades_lotacao/repositories/unidade_hospitalar_repository.dart';
@@ -27,6 +28,7 @@ import '../catmed/catmed_screen.dart';
 import '../renem/renem_screen.dart';
 import '../unidades/unidades_hospitalares_screen.dart';
 import '../admin/gabinete_unidades_screen.dart';
+import '../admin/permissoes_screen.dart';
 import 'duplicados_screen.dart';
 
 /// Dados do painel expostos para as rotas do Navigator de conteúdo (dashboard/usuários atualizam).
@@ -385,6 +387,13 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
             onTap: () => _navigateTo('gabinete-unidades'),
             visible: _ehAdmin,
           ),
+          SidebarMenuItem(
+            id: 'permissoes',
+            label: 'Permissões dos usuários',
+            icon: Icons.security,
+            onTap: () => _navigateTo('permissoes'),
+            visible: _ehAdmin,
+          ),
         ],
       ),
     ];
@@ -465,6 +474,8 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
         return DuplicadosScreen(onBack: _voltarParaDashboard);
       case 'gabinete-unidades':
         return GabineteUnidadesScreen(onBack: _voltarParaDashboard);
+      case 'permissoes':
+        return PermissoesScreen(onBack: _voltarParaDashboard);
       default:
         return _buildEmbeddedContent();
     }
@@ -510,6 +521,8 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
         );
       case 'gabinete-unidades':
         return GabineteUnidadesScreen(onBack: _voltarParaDashboard);
+      case 'permissoes':
+        return PermissoesScreen(onBack: _voltarParaDashboard);
       default:
         return const SizedBox.shrink();
     }
@@ -557,6 +570,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
                 userEmail: widget.usuarioLogado?.email ?? '',
                 onConfiguracoesUsuario: _abrirMeusDados,
                 onSair: () async {
+                  PermissaoService.limparCache();
                   await Supabase.instance.client.auth.signOut();
                   if (context.mounted) widget.onSair();
                 },

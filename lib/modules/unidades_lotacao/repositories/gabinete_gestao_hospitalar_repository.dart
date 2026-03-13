@@ -22,8 +22,12 @@ class GabineteGestaoHospitalarRepository {
   }
 
   /// Substitui a configuração pelas unidades indicadas.
+  /// (Delete com WHERE é exigido pelo PostgREST; por isso buscamos os IDs atuais antes.)
   Future<void> setUnidadeIds(List<String> unidadeIds) async {
-    await _supabase.from(_table).delete();
+    final atuais = await getUnidadeIds();
+    if (atuais.isNotEmpty) {
+      await _supabase.from(_table).delete().inFilter('unidade_id', atuais);
+    }
     if (unidadeIds.isEmpty) return;
     await _supabase.from(_table).insert(
       unidadeIds.map((id) => {'unidade_id': id}).toList(),

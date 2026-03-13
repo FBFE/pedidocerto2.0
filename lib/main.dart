@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'modules/permissoes/services/permissao_service.dart';
 import 'modules/usuarios/models/usuario_model.dart';
 import 'modules/usuarios/repositories/usuario_repository.dart';
 import 'screens/auth/login_screen.dart';
@@ -192,6 +193,7 @@ class _LoggedInWrapperState extends State<LoggedInWrapper> {
     }
     try {
       final u = await UsuarioRepository().getUsuarioByEmail(email);
+      await PermissaoService.carregarParaUsuario(u);
       if (mounted) {
         setState(() {
           _usuarioLogado = u;
