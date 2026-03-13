@@ -162,8 +162,6 @@ class _AdicionarCredorAtaScreenState extends State<AdicionarCredorAtaScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Adicionar credor – ${widget.numeroAta}'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
       ),
       body: _carregando
           ? const Center(child: CircularProgressIndicator())

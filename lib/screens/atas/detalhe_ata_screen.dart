@@ -398,8 +398,6 @@ class _DetalheAtaScreenState extends State<DetalheAtaScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalhe da ata'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),

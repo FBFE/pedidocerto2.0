@@ -362,15 +362,13 @@ class _DetalharItensAtaScreenState extends State<DetalharItensAtaScreen> {
   Widget build(BuildContext context) {
     if (_carregando) {
       return Scaffold(
-        appBar: AppBar(title: Text('Detalhar itens - ${widget.numeroAta}'), backgroundColor: const Color(0xFF1E1E1E), foregroundColor: Colors.white),
+        appBar: AppBar(title: Text('Detalhar itens - ${widget.numeroAta}')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
     return Scaffold(
       appBar: AppBar(
         title: Text('Detalhar itens - ${widget.numeroAta}'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [

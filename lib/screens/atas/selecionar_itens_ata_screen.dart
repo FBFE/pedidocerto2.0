@@ -153,8 +153,6 @@ class _SelecionarItensAtaScreenState extends State<SelecionarItensAtaScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Itens da ata ${widget.numeroAta}'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [

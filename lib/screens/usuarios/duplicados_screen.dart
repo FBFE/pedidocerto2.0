@@ -110,8 +110,6 @@ class _DuplicadosScreenState extends State<DuplicadosScreen> {
               )
             : null,
         title: const Text('Usuários Duplicados'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
       ),
       body: _carregando
           ? const Center(child: CircularProgressIndicator())

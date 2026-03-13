@@ -1701,8 +1701,6 @@ class _DfdFormScreenState extends State<DfdFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.dfd == null ? 'Novo DFD' : 'Editar DFD'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
       ),
       body: ConstrainedContent(
         child: Form(

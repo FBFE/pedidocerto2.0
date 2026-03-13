@@ -125,8 +125,6 @@ class _PermissoesScreenState extends State<PermissoesScreen> {
             ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack)
             : null,
         title: const Text('Permissões dos usuários'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _carregando ? null : _carregar, tooltip: 'Atualizar'),
         ],

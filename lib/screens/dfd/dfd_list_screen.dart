@@ -119,8 +119,6 @@ class _DfdListScreenState extends State<DfdListScreen> {
               )
             : null,
         title: const Text('Documentos de Formalização de Demanda (DFD)'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
       ),
       body: _carregando
           ? const Center(child: CircularProgressIndicator())

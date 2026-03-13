@@ -229,8 +229,6 @@ class _FornecedorFormScreenState extends State<FornecedorFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.fornecedor == null ? 'Novo fornecedor' : 'Editar fornecedor'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
       ),
       body: Form(
         key: _formKey,
